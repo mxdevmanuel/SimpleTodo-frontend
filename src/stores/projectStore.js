@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:3000';
+// Use Vite env variable for API URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useProjectStore = defineStore('projects', {
   state: () => ({
