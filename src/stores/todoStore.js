@@ -2,7 +2,19 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
-
+const TodoUtils = {
+  formatIncomingTodo(todo) {
+    // Format incoming todo data if necessary
+    if (todo.id && Array.isArray(todo.id) && todo.id.length > 0) {
+      todo.id = todo.id[0]; // Assuming id is an array with a single value
+    }
+    return {
+      ...todo,
+      completed: todo.completed || false, // Ensure completed is always a boolean
+      task: todo.task || null // Ensure task is always set
+    };
+  }
+};
 export const useTodoStore = defineStore('todos', {
   state: () => ({
     todos: [],
@@ -45,7 +57,7 @@ export const useTodoStore = defineStore('todos', {
       
       try {
         const response = await axios.post(`${API_URL}/todos`, todo);
-        const newTodo = response.data;
+        const newTodo = { ...todo, ...TodoUtils.formatIncomingTodo(response.data) };
         this.todos.push(newTodo);
         return newTodo;
       } catch (err) {
@@ -63,7 +75,7 @@ export const useTodoStore = defineStore('todos', {
       
       try {
         const response = await axios.put(`${API_URL}/todos/${todo.id}`, todo);
-        const updatedTodo = response.data;
+        const updatedTodo = { ...todo, ...TodoUtils.formatIncomingTodo( response.data ) };
         const index = this.todos.findIndex(t => t.id === todo.id);
         if (index !== -1) {
           this.todos[index] = updatedTodo;

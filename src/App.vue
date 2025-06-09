@@ -251,7 +251,7 @@ watch(() => projectStore.selectedProjectId, async (newProjectId) => {
           :id="task.id"
           :title="task.title"
           :description="task.description"
-          :project="task.projectId"
+          :project="task.project"
           :children="task.todos || []"
           :completed="task.completed"
           :archived="task.archived"

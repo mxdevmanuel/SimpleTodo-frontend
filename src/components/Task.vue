@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useTodoStore } from '../stores/todoStore'
 import { useTaskStore } from '../stores/taskStore'
 import Todo from './Todo.vue'
+import TaskEditModal from './TaskEditModal.vue'
 
 const props = defineProps({
   id: [String, Number],
@@ -21,6 +22,7 @@ const todoStore = useTodoStore()
 const taskStore = useTaskStore()
 const showNewTodoForm = ref(false)
 const newTodoTitle = ref('')
+const showEditModal = ref(false)
 
 // Use local todos from store if available, otherwise fall back to props
 const todos = computed(() => {
@@ -68,6 +70,18 @@ async function onToggleTodo(id) {
 async function onDeleteTodo(id) {
   await todoStore.deleteTodo(id)
 }
+
+function onEdit() {
+  showEditModal.value = true
+}
+
+function onEditSubmit(updated) {
+  taskStore.updateTask({
+    id: props.id,
+    ...updated
+  })
+  showEditModal.value = false
+}
 </script>
 
 <template>
@@ -89,6 +103,15 @@ async function onDeleteTodo(id) {
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+      <button
+        class="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 mr-1"
+        @click="onEdit"
+        aria-label="Edit task"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l8-8a2.828 2.828 0 10-4-4l-8 8v3zm0 0v3h3" />
         </svg>
       </button>
       <button
@@ -129,6 +152,15 @@ async function onDeleteTodo(id) {
       />
     </div>
     <div v-if="archived" class="badge badge-outline badge-warning mt-2 ml-7">Archived</div>
+
+    <!-- Task Edit Modal -->
+    <TaskEditModal
+      v-if="showEditModal"
+      :isEdit="true"
+      :task="{ id, title, description, project }"
+      @close="showEditModal = false"
+      @submit="onEditSubmit"
+    />
   </div>
 </template>
 
